@@ -39,9 +39,17 @@ public class Adapter
 
     @Override
     public void onBindViewHolder(FeedModelViewHolder holder, int position) {
+
         final Earthquake earthquake = mRssFeedModels.get(position);
-        ((TextView)holder.rssFeedView.findViewById(R.id.titleText)).setText(earthquake.title);
-        ((TextView)holder.rssFeedView.findViewById(R.id.descriptionText)).setText(earthquake.description);
+        String[] seperated = earthquake.getDescription().split(";");
+        String magnitude = seperated[4].substring(13);
+        String location = seperated[1].substring(11);
+        String date = seperated[0].substring(18);
+        String latlong = seperated[2].substring(12);
+        String depth = seperated[3].substring(7);
+
+        ((TextView)holder.rssFeedView.findViewById(R.id.titleText)).setText(location + "," + magnitude);
+        ((TextView)holder.rssFeedView.findViewById(R.id.descriptionText)).setText(date + "," + depth + "," + latlong);
     }
 
     @Override

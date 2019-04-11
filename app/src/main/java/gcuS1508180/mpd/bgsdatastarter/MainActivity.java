@@ -64,6 +64,10 @@ public class MainActivity extends AppCompatActivity {
         String title = null;
         String link = null;
         String description = null;
+        String pubDate = null;
+        String category = null;
+        String lat = null;
+        String lng = null;
         boolean isItem = false;
         List<Earthquake> items = new ArrayList<>();
 
@@ -107,17 +111,34 @@ public class MainActivity extends AppCompatActivity {
                     link = result;
                 } else if (name.equalsIgnoreCase("description")) {
                     description = result;
+                    Log.d("Main Activity", description);
+                }
+                else if (name.equalsIgnoreCase("pubDate")){
+                    pubDate = result;
+                }
+                else if(name.equalsIgnoreCase("category")){
+                    category = result;
+                }
+                else if(name.equalsIgnoreCase("geo:lat")){
+                    lat = result;
+                }
+                else if(name.equalsIgnoreCase("geo:long")){
+                    lng = result;
                 }
 
-                if (title != null && link != null && description != null) {
+                if (title != null && link != null && description != null && pubDate != null && category !=null && lat != null && lng != null) {
                     if(isItem) {
-                        Earthquake item = new Earthquake(title, link, description);
+                        Earthquake item = new Earthquake(title, link, description, pubDate, category, lat,lng);
                         items.add(item);
                     }
 
                     title = null;
                     link = null;
                     description = null;
+                    pubDate = null;
+                    category = null;
+                    lat = null;
+                    lng = null;
                     isItem = false;
                 }
             }
