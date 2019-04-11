@@ -31,14 +31,8 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView mRecyclerView;
     private Button mFetchFeedButton;
     private SwipeRefreshLayout mSwipeLayout;
-    private TextView mFeedTitleTextView;
-    private TextView mFeedLinkTextView;
-    private TextView mFeedDescriptionTextView;
-
     private List<Earthquake> mFeedModelList;
-    private String mFeedTitle;
-    private String mFeedLink;
-    private String mFeedDescription;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,9 +43,6 @@ public class MainActivity extends AppCompatActivity {
 
         mFetchFeedButton = (Button) findViewById(R.id.fetchFeedButton);
         mSwipeLayout = (SwipeRefreshLayout) findViewById(R.id.swipeRefreshLayout);
-        mFeedTitleTextView = (TextView) findViewById(R.id.feedTitle);
-        mFeedDescriptionTextView = (TextView) findViewById(R.id.feedDescription);
-        mFeedLinkTextView = (TextView) findViewById(R.id.feedLink);
 
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
@@ -123,11 +114,6 @@ public class MainActivity extends AppCompatActivity {
                         Earthquake item = new Earthquake(title, link, description);
                         items.add(item);
                     }
-                    else {
-                        mFeedTitle = title;
-                        mFeedLink = link;
-                        mFeedDescription = description;
-                    }
 
                     title = null;
                     link = null;
@@ -150,12 +136,6 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPreExecute() {
             mSwipeLayout.setRefreshing(true);
-            mFeedTitle = null;
-            mFeedLink = null;
-            mFeedDescription = null;
-            mFeedTitleTextView.setText("Feed Title: " + mFeedTitle);
-            mFeedDescriptionTextView.setText("Feed Description: " + mFeedDescription);
-            mFeedLinkTextView.setText("Feed Link: " + mFeedLink);
             urlLink = "http://quakes.bgs.ac.uk/feeds/MhSeismology.xml";
         }
 
@@ -185,9 +165,6 @@ public class MainActivity extends AppCompatActivity {
             mSwipeLayout.setRefreshing(false);
 
             if (success) {
-                mFeedTitleTextView.setText("Feed Title: " + mFeedTitle);
-                mFeedDescriptionTextView.setText("Feed Description: " + mFeedDescription);
-                mFeedLinkTextView.setText("Feed Link: " + mFeedLink);
                 // Fill RecyclerView
                 mRecyclerView.setAdapter(new Adapter(mFeedModelList));
             } else {

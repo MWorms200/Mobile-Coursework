@@ -42,7 +42,6 @@ public class Adapter
         final Earthquake earthquake = mRssFeedModels.get(position);
         ((TextView)holder.rssFeedView.findViewById(R.id.titleText)).setText(earthquake.title);
         ((TextView)holder.rssFeedView.findViewById(R.id.descriptionText)).setText(earthquake.description);
-        ((TextView)holder.rssFeedView.findViewById(R.id.linkText)).setText(earthquake.link);
     }
 
     @Override
