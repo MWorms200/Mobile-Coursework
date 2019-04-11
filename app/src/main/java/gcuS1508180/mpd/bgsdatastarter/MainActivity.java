@@ -1,263 +1,200 @@
-
-/*  Starter project for Mobile Platform Development in Semester B Session 2018/2019
-    You should use this project as the starting point for your assignment.
-    This project simply reads the data from the required URL and displays the
-    raw data in a TextField
-*/
-
-//
-// Name                 Michael Worms
-// Student ID           S1508180
-// Programme of Study   BSc Hons
-//
-
-// Update the package name to include your Student Identifier
 package gcuS1508180.mpd.bgsdatastarter;
 
+import android.annotation.SuppressLint;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.util.Log;
-import android.view.View;
-import android.view.View.OnClickListener;
+import android.util.Xml;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.StringReader;
-import java.net.URL;
-import java.net.URLConnection;
+import android.widget.Toast;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
-import org.xmlpull.v1.XmlPullParserFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
-import java.util.LinkedList;
+import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
-    private TextView rawDataDisplay;
-    private Button startButton;
-    private String result = "";
-    private String url1 = "";
-    private String urlSource = "http://quakes.bgs.ac.uk/feeds/MhSeismology.xml";
-    private XmlPullParser xpp;
-    private LinkedList alist;
+public class MainActivity extends AppCompatActivity {
+
+    private static final String TAG = "MainActivity";
+
+    private RecyclerView mRecyclerView;
+    private Button mFetchFeedButton;
+    private SwipeRefreshLayout mSwipeLayout;
+    private TextView mFeedTitleTextView;
+    private TextView mFeedLinkTextView;
+    private TextView mFeedDescriptionTextView;
+
+    private List<Earthquake> mFeedModelList;
+    private String mFeedTitle;
+    private String mFeedLink;
+    private String mFeedDescription;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        // Set up the raw links to the graphical components
-        rawDataDisplay = (TextView) findViewById(R.id.rawDataDisplay);
-        startButton = (Button) findViewById(R.id.startButton);
-        startButton.setOnClickListener(this);
-        LinkedList<Earthquake> alist = null;
 
-        // More Code goes here
-    }
+        mRecyclerView = (RecyclerView) findViewById(R.id.recyclerView);
 
+        mFetchFeedButton = (Button) findViewById(R.id.fetchFeedButton);
+        mSwipeLayout = (SwipeRefreshLayout) findViewById(R.id.swipeRefreshLayout);
+        mFeedTitleTextView = (TextView) findViewById(R.id.feedTitle);
+        mFeedDescriptionTextView = (TextView) findViewById(R.id.feedDescription);
+        mFeedLinkTextView = (TextView) findViewById(R.id.feedLink);
 
-    public void onClick(View aview) {
-        startProgress();
-    }
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-    public void startProgress() {
-        // Run network access on a separate thread;
-        new Thread(new Task(urlSource)).start();
-    }
-
-   // Need separate thread to access the internet resource over network
-   // Other neater solutions should be adopted in later iterations.
-private class Task implements Runnable
-{
-    private String url;
-
-    public Task(String aurl)
-   {
-        url = aurl;
-    }
-    @Override
-    public void run()
-    {
-        URL aurl;
-        URLConnection yc;
-        BufferedReader in = null;
-        String inputLine = "";
-        Log.e("MyTag","in run");
-       try
-       {
-            Log.e("MyTag","in try");
-            aurl = new URL(url);
-            yc = aurl.openConnection();
-            in = new BufferedReader(new InputStreamReader(yc.getInputStream()));
-            while ((inputLine = in.readLine()) != null)
-            {
-                result = result + inputLine;
-              // Log.e("MyTag",inputLine);
-
+        mFetchFeedButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                new FetchFeedTask().execute((Void) null);
             }
-            xpp = null;
-            in.close();
-            //System.out.print(result);
-            XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
-            factory.setNamespaceAware(true);
-            xpp = factory.newPullParser();
-            xpp.setInput( new StringReader(result));
-       }
-       catch (IOException | XmlPullParserException ae)
-       {
-           Log.e("MyTag", "ioexception");
-       }
-
-
-        try
-        {
-            int eventType = xpp.getEventType();
-            Earthquake earthquake = null;
-            LinkedList <Earthquake> alist = null;
-            boolean done = false;
-            while (eventType != XmlPullParser.END_DOCUMENT && !done)
-            {
-                // Found a start tag
-                if(eventType == XmlPullParser.START_TAG)
-                {
-                   //Log.e("MyTag", "Found Start Tag");
-                    // Check which Tag we have
-                    if (xpp.getName().equalsIgnoreCase("channel"))
-                    {
-                        alist  = new LinkedList<>();
-                    }
-                    else
-                    if (xpp.getName().equalsIgnoreCase("item"))
-                    {
-                        //Log.e("MyTag","Item Start Tag found");
-                        earthquake = new Earthquake();
-
-                    }
-                    else if(earthquake!=null){
-                        if (xpp.getName().equalsIgnoreCase("title"))
-                        {
-                            // Now just get the associated text
-                            String temp = xpp.nextText();
-                            // Do something with text
-                            if (earthquake!=null){
-                                //Log.e("MyTag","title is " + temp);
-                                earthquake.setTitle(temp);}
-                        }
-                        else
-                            // Check which Tag we have
-                            if (xpp.getName().equalsIgnoreCase("description"))
-                            {
-                                // Now just get the associated text
-                                String temp = xpp.nextText();
-                                // Do something with text
-                                if(earthquake!=null){
-                                    //Log.e("MyTag","Description is " + temp);
-                                    earthquake.setDescription(temp);}
-                            }
-                            else
-                                // Check which Tag we have
-                                if (xpp.getName().equalsIgnoreCase("link"))
-                                {
-                                    // Now just get the associated text
-                                    String temp = xpp.nextText();
-                                    // Do something with text
-
-                                    //Log.e("MyTag","link is " + temp);
-                                    earthquake.setLink(temp);
-                                }
-                                else if (xpp.getName().equalsIgnoreCase("pubDate")){
-                                    String temp = xpp.nextText();
-
-                                    //Log.e("MyTag", "pubDate is " + temp);
-                                    earthquake.setPubDate(temp);
-                                }
-                                else if (xpp.getName().equalsIgnoreCase("category")){
-                                    String temp = xpp.nextText();
-
-                                    //Log.e("MyTag", "category is " + temp);
-                                    earthquake.setCategory(temp);
-                                }
-                                else if (xpp.getName().equalsIgnoreCase("geo:lat")){
-                                    String temp = xpp.nextText();
-
-                                   // Log.e("MyTag", "Latitude is " + temp);
-                                    earthquake.setGeoLat(temp);
-                                }
-                                else if (xpp.getName().equalsIgnoreCase("get:long")){
-                                    String temp = xpp.nextText();
-
-                                    //Log.e("MyTag", "Longitude is " + temp);
-                                    earthquake.setGeoLng(temp);
-                                }
-                    }
-
-                }
-                else if(eventType == XmlPullParser.END_TAG)
-                {
-                    if (xpp.getName().equalsIgnoreCase("item"))
-                    {
-                        Log.e("MyTag","earthquake is " + earthquake.toString());
-                        alist.add(earthquake);
-                    }
-                    else
-                    if (xpp.getName().equalsIgnoreCase("channel"))
-                    {
-                        int size;
-                        size = alist.size();
-                        Log.e("MyTag","channel size is " + size);
-                        done=true;
-                    }
-                }
-                // Get the next event
-                eventType = xpp.next();
-            } // End of while
-            //return alist;
-        }
-        catch (XmlPullParserException ae1)
-        {
-            Log.e("MyTag","Parsing error " + ae1.toString());
-        }
-        catch (IOException ae1)
-        {
-            Log.e("MyTag","IO error during parsing");
-        }
-        Log.e("MyTag","End document");
-        // Now update the TextView to display raw XML data
-        // Probably not the best way to update TextView
-        // but we are just getting started !
-        MainActivity.this.runOnUiThread(new Runnable()
-        {
-            public void run() {
-                Log.d("UI thread", "I am the UI thread");
-                //rawDataDisplay.setText(result);
-
-
+        });
+        mSwipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                new FetchFeedTask().execute((Void) null);
             }
         });
     }
-}
 
-    private void printEarthquake(ArrayList<Earthquake> alist) {
-        StringBuilder builder = new StringBuilder();
+    public List<Earthquake> parseFeed(InputStream inputStream) throws XmlPullParserException, IOException {
+        String title = null;
+        String link = null;
+        String description = null;
+        boolean isItem = false;
+        List<Earthquake> items = new ArrayList<>();
 
-        for (Earthquake earthquake : alist) {
-            builder.append(earthquake.title).append("\n").
-                    append(earthquake.description).append("\n").
-                    append(earthquake.category).append("\n") .
-                    append(earthquake.geoLat).append(earthquake.geoLng).append("\n\n");
+        try {
+            XmlPullParser xmlPullParser = Xml.newPullParser();
+            xmlPullParser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
+            xmlPullParser.setInput(inputStream, null);
+
+
+            while (xmlPullParser.next() != XmlPullParser.END_DOCUMENT) {
+                int eventType = xmlPullParser.getEventType();
+
+                String name = xmlPullParser.getName();
+                if(name == null)
+                    continue;
+
+                if(eventType == XmlPullParser.END_TAG) {
+                    if(name.equalsIgnoreCase("item")) {
+                        isItem = false;
+                    }
+                    continue;
+                }
+
+                if (eventType == XmlPullParser.START_TAG) {
+                    if(name.equalsIgnoreCase("item")) {
+                        isItem = true;
+                        continue;
+                    }
+                }
+
+                Log.d("MainActivity", "Parsing name ==> " + name);
+                String result = "";
+                if (xmlPullParser.next() == XmlPullParser.TEXT) {
+                    result = xmlPullParser.getText();
+                    xmlPullParser.nextTag();
+                }
+
+                if (name.equalsIgnoreCase("title")) {
+                    title = result;
+                } else if (name.equalsIgnoreCase("link")) {
+                    link = result;
+                } else if (name.equalsIgnoreCase("description")) {
+                    description = result;
+                }
+
+                if (title != null && link != null && description != null) {
+                    if(isItem) {
+                        Earthquake item = new Earthquake(title, link, description);
+                        items.add(item);
+                    }
+                    else {
+                        mFeedTitle = title;
+                        mFeedLink = link;
+                        mFeedDescription = description;
+                    }
+
+                    title = null;
+                    link = null;
+                    description = null;
+                    isItem = false;
+                }
+            }
+
+            return items;
+        } finally {
+            inputStream.close();
+        }
+    }
+
+    private class FetchFeedTask extends AsyncTask<Void, Void, Boolean> {
+
+        private String urlLink;
+
+        @SuppressLint("SetTextI18n")
+        @Override
+        protected void onPreExecute() {
+            mSwipeLayout.setRefreshing(true);
+            mFeedTitle = null;
+            mFeedLink = null;
+            mFeedDescription = null;
+            mFeedTitleTextView.setText("Feed Title: " + mFeedTitle);
+            mFeedDescriptionTextView.setText("Feed Description: " + mFeedDescription);
+            mFeedLinkTextView.setText("Feed Link: " + mFeedLink);
+            urlLink = "http://quakes.bgs.ac.uk/feeds/MhSeismology.xml";
         }
 
-        //rawDataDisplay.setText(builder.toString());
+        @Override
+        protected Boolean doInBackground(Void... voids) {
+            if (TextUtils.isEmpty(urlLink))
+                return false;
+
+            try {
+                if(!urlLink.startsWith("http://") && !urlLink.startsWith("https://"))
+                    urlLink = "http://" + urlLink;
+
+                URL url = new URL(urlLink);
+                InputStream inputStream = url.openConnection().getInputStream();
+                mFeedModelList = parseFeed(inputStream);
+                return true;
+            } catch (IOException e) {
+                Log.e(TAG, "Error", e);
+            } catch (XmlPullParserException e) {
+                Log.e(TAG, "Error", e);
+            }
+            return false;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean success) {
+            mSwipeLayout.setRefreshing(false);
+
+            if (success) {
+                mFeedTitleTextView.setText("Feed Title: " + mFeedTitle);
+                mFeedDescriptionTextView.setText("Feed Description: " + mFeedDescription);
+                mFeedLinkTextView.setText("Feed Link: " + mFeedLink);
+                // Fill RecyclerView
+                mRecyclerView.setAdapter(new Adapter(mFeedModelList));
+            } else {
+                Toast.makeText(MainActivity.this,
+                        "Enter a valid Rss feed url",
+                        Toast.LENGTH_LONG).show();
+            }
+        }
     }
 }
-
-
-
-
