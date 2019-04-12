@@ -1,6 +1,9 @@
 package gcuS1508180.mpd.bgsdatastarter;
 
 import android.annotation.SuppressLint;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -23,7 +26,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final String TAG = "MainActivity";
 
@@ -32,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView.LayoutManager mLayoutManager;
     private Button mFetchFeedButton;
     private List<Earthquake> mFeedModelList;
+    private Button mFetchMapButton;
 
 
     @Override
@@ -42,6 +46,8 @@ public class MainActivity extends AppCompatActivity {
 
         mRecyclerView = (RecyclerView) findViewById(R.id.recyclerView);
         mFetchFeedButton = (Button) findViewById(R.id.fetchFeedButton);
+        mFetchMapButton = (Button) findViewById(R.id.fetchMapButton);
+        mFetchMapButton.setOnClickListener(this);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mFetchFeedButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -54,6 +60,8 @@ public class MainActivity extends AppCompatActivity {
     public List<Earthquake> parseFeed(InputStream inputStream) throws XmlPullParserException, IOException {
          String title = null;
          String description = null;
+         Double lat = null;
+         Double lng = null;
         boolean isItem = false;
         List<Earthquake> items = new ArrayList<>();
 
@@ -96,12 +104,16 @@ public class MainActivity extends AppCompatActivity {
                 } else if (name.equalsIgnoreCase("description")) {
                     description = result;
                     Log.d("Main Activity", description);
+                }else if (name.equalsIgnoreCase("geo:lat")){
+                    lat = Double.parseDouble(result);
+                }else if(name.equalsIgnoreCase("geo:long")){
+                    lng=Double.parseDouble(result);
                 }
 
 
-                if (title != null && description != null ) {
+                if (title != null && description != null && lat!=null && lng!=null ) {
                     if(isItem) {
-                        Earthquake item = new Earthquake(title, description);
+                        Earthquake item = new Earthquake(title, description, lat, lng);
                         items.add(item);
                     }
 
@@ -116,6 +128,27 @@ public class MainActivity extends AppCompatActivity {
             inputStream.close();
         }
     }
+
+        public void onClick(View view) {
+            if (view == mFetchMapButton) {
+                Intent intent = new Intent(this, MapsActivity.class);
+                Earthquake e;
+                for (int i = 0; i < mFeedModelList.size(); i++) {
+                    e = mFeedModelList.get(i);
+                    String description = e.getDescription();
+                    Double lat = e.getLat();
+                    Double lng = e.getLng();
+                    intent.putExtra(i+"description", description);
+                    intent.putExtra(i+"lat", lat);
+                    intent.putExtra(i+"lng", lng);
+
+//                    Intent intent = new Intent(android.content.Intent.ACTION_VIEW,
+//                            Uri.parse("geo:54.261124,-2.381588"));
+                    startActivity(intent);
+                }
+
+            }
+        }
 
     private class FetchFeedTask extends AsyncTask<Void, Void, Boolean> {
 

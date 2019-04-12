@@ -58,7 +58,7 @@ public class Adapter extends RecyclerView.Adapter<Adapter.FeedModelViewHolder> {
             holder.rssFeedView.findViewById(R.id.descriptionText).setBackgroundColor(Color.RED);
         }
         ((TextView)holder.rssFeedView.findViewById(R.id.titleText)).setText(new StringBuilder().append(location).append(",").append(magnitude).toString());
-        ((TextView)holder.rssFeedView.findViewById(R.id.descriptionText)).setText(new StringBuilder().append(date).append(",").append(depth).append(",").append(latlong).toString());
+        ((TextView)holder.rssFeedView.findViewById(R.id.descriptionText)).setText(new StringBuilder().append(date).append(",").append(depth).append(",").append(earthquake.lat).append(",").append(earthquake.lng).toString());
     }
 
     @Override
