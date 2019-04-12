@@ -1,24 +1,43 @@
+/***
+ * Michael Worms
+ * S1508180
+ * 4th Year Computing
+ * MPD
+ */
 package gcuS1508180.mpd.bgsdatastarter;
+public class Earthquake{
 
 
-public class Earthquake {
-   public String title;
-   public String description;
-   public String link;
-   public String pubDate;
-   public String category;
-   public String geoLat;
-   public String geoLng;
+    public String title;
+    public String description;
+    public Double lat;
+    public Double lng;
 
-   public Earthquake(){
-       title = "";
-       description="";
-       link="";
-       pubDate="";
-       category="";
-       geoLat="";
-       geoLng="";
-   }
+
+
+    public Earthquake(String title,String description, Double lat, Double lng) {
+        this.title = title;
+        this.description = description;
+        this.lat = lat;
+        this.lng = lng;
+
+    }
+
+    public Double getLat() {
+        return lat;
+    }
+
+    public void setLat(Double lat) {
+        this.lat = lat;
+    }
+
+    public Double getLng() {
+        return lng;
+    }
+
+    public void setLng(Double lng) {
+        this.lng = lng;
+    }
 
     public String getTitle() {
         return title;
@@ -36,57 +55,5 @@ public class Earthquake {
         this.description = description;
     }
 
-    public String getLink() {
-        return link;
-    }
 
-    public void setLink(String link) {
-        this.link = link;
-    }
-
-    public String getPubDate() {
-        return pubDate;
-    }
-
-    public void setPubDate(String pubDate) {
-        this.pubDate = pubDate;
-    }
-
-    public String getCategory() {
-        return category;
-    }
-
-    public void setCategory(String category) {
-        this.category = category;
-    }
-
-    public String getGeoLat() {
-        return geoLat;
-    }
-
-
-    public void setGeoLat(String geoLat) {
-        this.geoLat = geoLat;
-    }
-
-    public String getGeoLng() {
-        return geoLng;
-    }
-
-    public void setGeoLng(String geoLng) {
-        this.geoLng = geoLng;
-    }
-
-    @Override
-    public String toString() {
-        return "Earthquake{" +
-                "title='" + title + '\'' +
-                ", description='" + description + '\'' +
-                ", link='" + link + '\'' +
-                ", pubDate='" + pubDate + '\'' +
-                ", category='" + category + '\'' +
-                ", geoLat='" + geoLat + '\'' +
-                ", geoLng='" + geoLng + '\'' +
-                '}';
-    }
 }
