@@ -33,7 +33,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private RecyclerView mRecyclerView;
     private Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
-    private Button mFetchFeedButton;
     private List<Earthquake> mFeedModelList;
     private Button mFetchMapButton;
 
@@ -42,19 +41,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        new FetchFeedTask().execute((Void) null);
 
 
         mRecyclerView = (RecyclerView) findViewById(R.id.recyclerView);
-        mFetchFeedButton = (Button) findViewById(R.id.fetchFeedButton);
         mFetchMapButton = (Button) findViewById(R.id.fetchMapButton);
         mFetchMapButton.setOnClickListener(this);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        mFetchFeedButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                new FetchFeedTask().execute((Void) null);
-            }
-        });
     }
 
     public List<Earthquake> parseFeed(InputStream inputStream) throws XmlPullParserException, IOException {
