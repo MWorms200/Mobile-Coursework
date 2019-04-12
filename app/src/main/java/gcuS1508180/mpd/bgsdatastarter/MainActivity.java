@@ -3,7 +3,6 @@ package gcuS1508180.mpd.bgsdatastarter;
 import android.annotation.SuppressLint;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -12,7 +11,7 @@ import android.util.Log;
 import android.util.Xml;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
+
 import android.widget.Toast;
 
 import org.xmlpull.v1.XmlPullParser;
@@ -29,8 +28,9 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
 
     private RecyclerView mRecyclerView;
+    private Adapter mAdapter;
+    private RecyclerView.LayoutManager mLayoutManager;
     private Button mFetchFeedButton;
-    private SwipeRefreshLayout mSwipeLayout;
     private List<Earthquake> mFeedModelList;
 
 
@@ -39,35 +39,21 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
         mRecyclerView = (RecyclerView) findViewById(R.id.recyclerView);
-
         mFetchFeedButton = (Button) findViewById(R.id.fetchFeedButton);
-        mSwipeLayout = (SwipeRefreshLayout) findViewById(R.id.swipeRefreshLayout);
-
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-
         mFetchFeedButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 new FetchFeedTask().execute((Void) null);
             }
         });
-        mSwipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                new FetchFeedTask().execute((Void) null);
-            }
-        });
     }
 
     public List<Earthquake> parseFeed(InputStream inputStream) throws XmlPullParserException, IOException {
-        String title = null;
-        String link = null;
-        String description = null;
-        String pubDate = null;
-        String category = null;
-        String lat = null;
-        String lng = null;
+         String title = null;
+         String description = null;
         boolean isItem = false;
         List<Earthquake> items = new ArrayList<>();
 
@@ -107,38 +93,20 @@ public class MainActivity extends AppCompatActivity {
 
                 if (name.equalsIgnoreCase("title")) {
                     title = result;
-                } else if (name.equalsIgnoreCase("link")) {
-                    link = result;
                 } else if (name.equalsIgnoreCase("description")) {
                     description = result;
                     Log.d("Main Activity", description);
                 }
-                else if (name.equalsIgnoreCase("pubDate")){
-                    pubDate = result;
-                }
-                else if(name.equalsIgnoreCase("category")){
-                    category = result;
-                }
-                else if(name.equalsIgnoreCase("geo:lat")){
-                    lat = result;
-                }
-                else if(name.equalsIgnoreCase("geo:long")){
-                    lng = result;
-                }
 
-                if (title != null && link != null && description != null && pubDate != null && category !=null && lat != null && lng != null) {
+
+                if (title != null && description != null ) {
                     if(isItem) {
-                        Earthquake item = new Earthquake(title, link, description, pubDate, category, lat,lng);
+                        Earthquake item = new Earthquake(title, description);
                         items.add(item);
                     }
 
-                    title = null;
-                    link = null;
-                    description = null;
-                    pubDate = null;
-                    category = null;
-                    lat = null;
-                    lng = null;
+                    title=null;
+                    description=null;
                     isItem = false;
                 }
             }
@@ -156,7 +124,6 @@ public class MainActivity extends AppCompatActivity {
         @SuppressLint("SetTextI18n")
         @Override
         protected void onPreExecute() {
-            mSwipeLayout.setRefreshing(true);
             urlLink = "http://quakes.bgs.ac.uk/feeds/MhSeismology.xml";
         }
 
@@ -183,7 +150,6 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(Boolean success) {
-            mSwipeLayout.setRefreshing(false);
 
             if (success) {
                 // Fill RecyclerView
