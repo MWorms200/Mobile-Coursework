@@ -1,6 +1,13 @@
+/***
+ * Michael Worms
+ * S1508180
+ * 4th Year Computing
+ * MPD
+ */
 package gcuS1508180.mpd.bgsdatastarter;
 
 import android.graphics.Color;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -44,7 +51,6 @@ public class Adapter extends RecyclerView.Adapter<Adapter.FeedModelViewHolder> {
         double magnitude = Double.parseDouble(separated[4].substring(13));
         String location = separated[1].substring(11);
         String date = separated[0].substring(18);
-        String latlong = separated[2].substring(12);
         String depth = separated[3].substring(7);
 
         if(magnitude <1 ){
@@ -58,7 +64,7 @@ public class Adapter extends RecyclerView.Adapter<Adapter.FeedModelViewHolder> {
             holder.rssFeedView.findViewById(R.id.descriptionText).setBackgroundColor(Color.RED);
         }
         ((TextView)holder.rssFeedView.findViewById(R.id.titleText)).setText(new StringBuilder().append(location).append(",").append(magnitude).toString());
-        ((TextView)holder.rssFeedView.findViewById(R.id.descriptionText)).setText(new StringBuilder().append(date).append(",").append(depth).append(",").append(earthquake.lat).append(",").append(earthquake.lng).toString());
+        ((TextView)holder.rssFeedView.findViewById(R.id.descriptionText)).setText(new StringBuilder().append(date).append(",").append(depth).append(",").append(earthquake.lat).append(", ").append(earthquake.lng).toString());
     }
 
     @Override

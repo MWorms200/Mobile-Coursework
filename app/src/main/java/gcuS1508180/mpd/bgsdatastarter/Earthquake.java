@@ -1,3 +1,9 @@
+/***
+ * Michael Worms
+ * S1508180
+ * 4th Year Computing
+ * MPD
+ */
 package gcuS1508180.mpd.bgsdatastarter;
 public class Earthquake{
 

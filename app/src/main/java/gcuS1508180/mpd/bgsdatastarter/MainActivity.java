@@ -1,5 +1,12 @@
 package gcuS1508180.mpd.bgsdatastarter;
 
+/***
+ * Michael Worms
+ * S1508180
+ * 4th Year Computing
+ * MPD
+ */
+
 import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -42,8 +49,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         new FetchFeedTask().execute((Void) null);
-
-
         mRecyclerView = (RecyclerView) findViewById(R.id.recyclerView);
         mFetchMapButton = (Button) findViewById(R.id.fetchMapButton);
         mFetchMapButton.setOnClickListener(this);
@@ -57,41 +62,33 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
          Double lng = null;
         boolean isItem = false;
         List<Earthquake> items = new ArrayList<>();
-
         try {
             XmlPullParser xmlPullParser = Xml.newPullParser();
             xmlPullParser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
             xmlPullParser.setInput(inputStream, null);
-
-
             while (xmlPullParser.next() != XmlPullParser.END_DOCUMENT) {
                 int eventType = xmlPullParser.getEventType();
-
                 String name = xmlPullParser.getName();
                 if(name == null)
                     continue;
-
                 if(eventType == XmlPullParser.END_TAG) {
                     if(name.equalsIgnoreCase("item")) {
                         isItem = false;
                     }
                     continue;
                 }
-
                 if (eventType == XmlPullParser.START_TAG) {
                     if(name.equalsIgnoreCase("item")) {
                         isItem = true;
                         continue;
                     }
                 }
-
                 Log.d("MainActivity", "Parsing name ==> " + name);
                 String result = "";
                 if (xmlPullParser.next() == XmlPullParser.TEXT) {
                     result = xmlPullParser.getText();
                     xmlPullParser.nextTag();
                 }
-
                 if (name.equalsIgnoreCase("title")) {
                     title = result;
                 } else if (name.equalsIgnoreCase("description")) {
@@ -102,14 +99,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }else if(name.equalsIgnoreCase("geo:long")){
                     lng=Double.parseDouble(result);
                 }
-
-
                 if (title != null && description != null && lat!=null && lng!=null ) {
                     if(isItem) {
                         Earthquake item = new Earthquake(title, description, lat, lng);
                         items.add(item);
                     }
-
                     title=null;
                     description=null;
                     isItem = false;
